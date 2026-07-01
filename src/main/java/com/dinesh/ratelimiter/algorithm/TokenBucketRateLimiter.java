@@ -2,13 +2,16 @@ package com.dinesh.ratelimiter.algorithm;
 
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.dinesh.ratelimiter.dto.RateLimitResult;
 import com.dinesh.ratelimiter.model.Bucket;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TokenBucketRateLimiter {
 
     private final ReentrantLock lock = new ReentrantLock();
 
-    public boolean allowRequest(Bucket bucket) {
+    public RateLimitResult allowRequest(Bucket bucket) {
 
         lock.lock();
 
@@ -20,10 +23,14 @@ public class TokenBucketRateLimiter {
 
                 bucket.setAvailableTokens(bucket.getAvailableTokens() - 1);
 
-                return true;
+                return new RateLimitResult(
+                        true,
+                        bucket.getAvailableTokens());
             }
 
-            return false;
+            return new RateLimitResult(
+                    false,
+                    bucket.getAvailableTokens());
 
         } finally {
 
@@ -31,7 +38,6 @@ public class TokenBucketRateLimiter {
 
         }
     }
-
     private void refill(Bucket bucket) {
 
         long currentTime = System.currentTimeMillis();
