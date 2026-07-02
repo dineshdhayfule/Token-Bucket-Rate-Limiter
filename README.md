@@ -1,6 +1,6 @@
 # 🚀 Token Bucket Rate Limiter
 
-A production-oriented **Token Bucket Rate Limiter** built with **Java 21** and **Spring Boot 3**. This project demonstrates backend engineering concepts such as rate limiting, thread safety, REST APIs, and scalable architecture.
+A production-oriented **Token Bucket Rate Limiter** built with **Java 21**, **Spring Boot 3**, and **Redis**. The project demonstrates backend engineering concepts such as rate limiting, thread safety, distributed storage, REST APIs, and scalable system design.
 
 ---
 
@@ -9,12 +9,14 @@ A production-oriented **Token Bucket Rate Limiter** built with **Java 21** and *
 - Token Bucket Rate Limiting Algorithm
 - Thread-safe implementation using `ReentrantLock`
 - Per-user buckets
+- Redis-backed bucket storage
 - Configurable bucket capacity
 - Configurable refill rate
 - REST API
 - JSON response
-- In-memory bucket storage
-- Clean layered architecture
+- Spring Profiles (`memory` / `redis`)
+- Docker-based Redis setup
+- Clean layered architecture using the Repository Pattern
 
 ---
 
@@ -22,9 +24,36 @@ A production-oriented **Token Bucket Rate Limiter** built with **Java 21** and *
 
 - Java 21
 - Spring Boot 3
+- Spring Data Redis
+- Redis
+- Docker
 - Maven
 - REST API
 - Git & GitHub
+
+---
+
+## 🏗️ Architecture
+
+```
+                Client
+                   │
+                   ▼
+          Spring Boot REST API
+                   │
+                   ▼
+             Bucket Service
+                   │
+                   ▼
+          Bucket Repository
+          ┌────────┴────────┐
+          │                 │
+          ▼                 ▼
+ InMemory Repository   Redis Repository
+                              │
+                              ▼
+                            Redis
+```
 
 ---
 
@@ -36,6 +65,9 @@ src/main/java/com/dinesh/ratelimiter
 ├── algorithm
 │   └── TokenBucketRateLimiter.java
 │
+├── config
+│   └── RedisConfig.java
+│
 ├── controller
 │   └── BucketController.java
 │
@@ -46,27 +78,78 @@ src/main/java/com/dinesh/ratelimiter
 │   └── Bucket.java
 │
 ├── repository
-│   └── BucketRepository.java
+│   ├── BucketRepository.java
+│   ├── InMemoryBucketRepository.java
+│   └── RedisBucketRepository.java
 │
 ├── service
 │   └── BucketService.java
 │
-└── RateLimiterApplication.java
+└── TokenBucketRateLimiterApplication.java
 ```
 
 ---
 
-## ⚙️ API
+## ⚙️ Configuration
 
-### Check Rate Limit
+### In-Memory Mode
 
-**Request**
+```properties
+spring.profiles.active=memory
+```
+
+### Redis Mode
+
+```properties
+spring.profiles.active=redis
+```
+
+---
+
+## ▶️ Running the Project
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/dineshdhayfule/Token-Bucket-Rate-Limiter.git
+cd Token-Bucket-Rate-Limiter
+```
+
+### 2. Start Redis
+
+```bash
+docker run -d --name redis-rate-limiter -p 6379:6379 redis:7-alpine
+```
+
+If the container already exists:
+
+```bash
+docker start redis-rate-limiter
+```
+
+### 3. Run the application
+
+```bash
+./mvnw spring-boot:run
+```
+
+Windows
+
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+---
+
+## 🧪 Test the API
+
+### Request
 
 ```
 GET /api/check?userId=dinesh
 ```
 
-**Response**
+### Response
 
 ```json
 {
@@ -75,57 +158,19 @@ GET /api/check?userId=dinesh
 }
 ```
 
----
-
-## ▶️ Running the Project
-
-Clone the repository
-
-```bash
-git clone https://github.com/dineshdhayfule/Token-Bucket-Rate-Limiter.git
-```
-
-Navigate to the project
-
-```bash
-cd Token-Bucket-Rate-Limiter
-```
-
-Run the application
-
-```bash
-./mvnw spring-boot:run
-```
-
-or
-
-```bash
-mvn spring-boot:run
-```
-
-The application starts on
-
-```
-http://localhost:8080
-```
-
----
-
-## 🧪 Test the API
-
-Browser
+### Browser
 
 ```
 http://localhost:8080/api/check?userId=dinesh
 ```
 
-Curl
+### cURL
 
 ```bash
 curl "http://localhost:8080/api/check?userId=dinesh"
 ```
 
-PowerShell
+### PowerShell
 
 ```powershell
 Invoke-RestMethod "http://localhost:8080/api/check?userId=dinesh"
@@ -135,15 +180,30 @@ Invoke-RestMethod "http://localhost:8080/api/check?userId=dinesh"
 
 ## 🚧 Roadmap
 
-- ✅ Phase 1 - In-Memory Token Bucket
-- ⏳ Phase 2 - Redis Integration
-- ⏳ Phase 3 - Multiple Client Strategies
-- ⏳ Phase 4 - Admin APIs
-- ⏳ Phase 5 - Metrics & Monitoring
-- ⏳ Phase 6 - Docker
-- ⏳ Phase 7 - Testing
-- ⏳ Phase 8 - CI/CD
-- ⏳ Phase 9 - Deployment
+- ✅ Phase 1 – In-Memory Token Bucket
+- ✅ Phase 2 – Redis Integration
+- ⏳ Phase 3 – Multiple Client Strategies
+- ⏳ Phase 4 – Admin APIs
+- ⏳ Phase 5 – Metrics & Monitoring
+- ⏳ Phase 6 – Docker Compose
+- ⏳ Phase 7 – Testing
+- ⏳ Phase 8 – CI/CD
+- ⏳ Phase 9 – Deployment
+
+---
+
+## 🎯 Learning Outcomes
+
+This project demonstrates:
+
+- Thread-safe backend programming
+- Rate limiting algorithms
+- Repository Pattern
+- Spring Dependency Injection
+- Redis integration with Spring Boot
+- JSON serialization
+- Docker-based local development
+- Production-oriented backend architecture
 
 ---
 
