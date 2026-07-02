@@ -32,6 +32,10 @@ public class BucketService {
                 capacity,
                 refillRate);
 
-        return rateLimiter.allowRequest(bucket);
+        RateLimitResult result = rateLimiter.allowRequest(bucket);
+
+        bucketRepository.saveBucket(userId, bucket);
+
+        return result;
     }
 }

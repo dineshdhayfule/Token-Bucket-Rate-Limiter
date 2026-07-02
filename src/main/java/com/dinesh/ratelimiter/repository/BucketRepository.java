@@ -1,37 +1,18 @@
 package com.dinesh.ratelimiter.repository;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.dinesh.ratelimiter.model.Bucket;
-import org.springframework.stereotype.Repository;
 
-@Repository
-public class BucketRepository {
+public interface BucketRepository {
 
-    private final ConcurrentHashMap<String, Bucket> buckets = new ConcurrentHashMap<>();
+    Bucket getBucket(String userId);
 
-    public Bucket getBucket(String userId) {
-        return buckets.get(userId);
-    }
+    void saveBucket(String userId, Bucket bucket);
 
-    public void saveBucket(String userId, Bucket bucket) {
-        buckets.put(userId, bucket);
-    }
+    boolean containsBucket(String userId);
 
-    public boolean containsBucket(String userId) {
-        return buckets.containsKey(userId);
-    }
+    void removeBucket(String userId);
 
-    public void removeBucket(String userId) {
-        buckets.remove(userId);
-    }
-
-    public Bucket getOrCreateBucket(String userId,
-                                    long capacity,
-                                    long refillRate) {
-
-        return buckets.computeIfAbsent(
-                userId,
-                id -> new Bucket(capacity, refillRate));
-    }
+    Bucket getOrCreateBucket(String userId,
+                             long capacity,
+                             long refillRate);
 }

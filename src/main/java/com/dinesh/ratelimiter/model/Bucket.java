@@ -1,13 +1,15 @@
 package com.dinesh.ratelimiter.model;
 
-
 public class Bucket {
 
-    private final long capacity;
-    private final long refillTokensPerSecond;
+    private long capacity;
+    private long refillTokensPerSecond;
 
     private long availableTokens;
     private long lastRefillTimestamp;
+
+    public Bucket() {
+    }
 
     public Bucket(long capacity, long refillTokensPerSecond) {
         this.capacity = capacity;
@@ -20,8 +22,16 @@ public class Bucket {
         return capacity;
     }
 
+    public void setCapacity(long capacity) {
+        this.capacity = capacity;
+    }
+
     public long getRefillTokensPerSecond() {
         return refillTokensPerSecond;
+    }
+
+    public void setRefillTokensPerSecond(long refillTokensPerSecond) {
+        this.refillTokensPerSecond = refillTokensPerSecond;
     }
 
     public long getAvailableTokens() {
