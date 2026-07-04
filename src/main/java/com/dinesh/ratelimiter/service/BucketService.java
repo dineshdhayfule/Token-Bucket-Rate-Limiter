@@ -1,12 +1,14 @@
 package com.dinesh.ratelimiter.service;
+
 import com.dinesh.ratelimiter.algorithm.TokenBucketRateLimiter;
 import com.dinesh.ratelimiter.dto.RateLimitResult;
 import com.dinesh.ratelimiter.model.Bucket;
+import com.dinesh.ratelimiter.model.ClientIdentifier;
 import com.dinesh.ratelimiter.repository.BucketRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-@Service
 
+@Service
 public class BucketService {
 
     private final BucketRepository bucketRepository;
@@ -20,22 +22,25 @@ public class BucketService {
 
     public BucketService(BucketRepository bucketRepository,
                          TokenBucketRateLimiter rateLimiter) {
-
         this.bucketRepository = bucketRepository;
         this.rateLimiter = rateLimiter;
     }
 
-    public RateLimitResult allowRequest(String userId) {
+    public RateLimitResult allowRequest(ClientIdentifier client) {
 
         Bucket bucket = bucketRepository.getOrCreateBucket(
-                userId,
+                client,
                 capacity,
-                refillRate);
+                refillRate
+        );
 
-        RateLimitResult result = rateLimiter.allowRequest(bucket);
+        boolean allowed = rateLimiter.allowRequest(bucket).isAllowed();
 
-        bucketRepository.saveBucket(userId, bucket);
+        bucketRepository.saveBucket(client, bucket);
 
-        return result;
+        return new RateLimitResult(
+                allowed,
+                bucket.getAvailableTokens()
+        );
     }
 }
