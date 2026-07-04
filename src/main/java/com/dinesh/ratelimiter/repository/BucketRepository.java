@@ -1,18 +1,21 @@
 package com.dinesh.ratelimiter.repository;
 
 import com.dinesh.ratelimiter.model.Bucket;
+import com.dinesh.ratelimiter.model.ClientIdentifier;
 
 public interface BucketRepository {
 
-    Bucket getBucket(String userId);
+    Bucket getBucket(ClientIdentifier client);
 
-    void saveBucket(String userId, Bucket bucket);
+    void saveBucket(ClientIdentifier client, Bucket bucket);
 
-    boolean containsBucket(String userId);
+    boolean containsBucket(ClientIdentifier client);
 
-    void removeBucket(String userId);
+    void removeBucket(ClientIdentifier client);
 
-    Bucket getOrCreateBucket(String userId,
-                             long capacity,
-                             long refillRate);
+    Bucket getOrCreateBucket(
+            ClientIdentifier client,
+            long capacity,
+            long refillRate
+    );
 }

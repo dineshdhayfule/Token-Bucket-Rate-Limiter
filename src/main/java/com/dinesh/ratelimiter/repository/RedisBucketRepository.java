@@ -1,6 +1,7 @@
 package com.dinesh.ratelimiter.repository;
 
 import com.dinesh.ratelimiter.model.Bucket;
+import com.dinesh.ratelimiter.model.ClientIdentifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -17,34 +18,40 @@ public class RedisBucketRepository implements BucketRepository {
         this.redisTemplate = redisTemplate;
     }
 
-    @Override
-    public Bucket getBucket(String userId) {
-        return redisTemplate.opsForValue().get(PREFIX + userId);
+    private String getKey(ClientIdentifier client) {
+        return PREFIX + client.getKey();
     }
 
     @Override
-    public void saveBucket(String userId, Bucket bucket) {
-        redisTemplate.opsForValue().set(PREFIX + userId, bucket);
+    public Bucket getBucket(ClientIdentifier client) {
+        return redisTemplate.opsForValue().get(getKey(client));
     }
 
     @Override
-    public boolean containsBucket(String userId) {
+    public void saveBucket(ClientIdentifier client, Bucket bucket) {
+        redisTemplate.opsForValue().set(getKey(client), bucket);
+    }
+
+    @Override
+    public boolean containsBucket(ClientIdentifier client) {
         return Boolean.TRUE.equals(
-                redisTemplate.hasKey(PREFIX + userId)
+                redisTemplate.hasKey(getKey(client))
         );
     }
 
     @Override
-    public void removeBucket(String userId) {
-        redisTemplate.delete(PREFIX + userId);
+    public void removeBucket(ClientIdentifier client) {
+        redisTemplate.delete(getKey(client));
     }
 
     @Override
-    public Bucket getOrCreateBucket(String userId,
-                                    long capacity,
-                                    long refillRate) {
+    public Bucket getOrCreateBucket(
+            ClientIdentifier client,
+            long capacity,
+            long refillRate
+    ) {
 
-        String key = PREFIX + userId;
+        String key = getKey(client);
 
         Bucket bucket = redisTemplate.opsForValue().get(key);
 
