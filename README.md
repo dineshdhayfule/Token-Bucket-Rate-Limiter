@@ -169,7 +169,5 @@ Invoke-RestMethod "http://localhost:8080/api/check?type=CLIENT&id=dinesh"
 ---
 
 ## 👨‍💻 Author
-
 **Dinesh Dhayfule**
-
 GitHub: https://github.com/dineshdhayfule
