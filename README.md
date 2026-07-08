@@ -1,13 +1,15 @@
 # 🚀 Token Bucket Rate Limiter
 
-A production-oriented **Token Bucket Rate Limiter** built with **Java 21**, **Spring Boot 3**, **Redis**, and **Docker**. This project demonstrates backend engineering concepts such as rate limiting, concurrency, Redis integration, REST APIs, monitoring, and scalable backend architecture.
+> A production-oriented **Token Bucket Rate Limiter** built with **Java 21**, **Spring Boot 3**, **Redis**, and **Docker**. This project demonstrates backend engineering concepts such as rate limiting, concurrency, Redis integration, REST APIs, monitoring, testing, and scalable backend architecture.
+
+> **GitHub Actions CI badge will be added in Phase 8.**
 
 ---
 
 # 📌 Features
 
 - Token Bucket Rate Limiting Algorithm
-- Thread-safe implementation
+- Thread-safe implementation using `ReentrantLock`
 - Multiple Client Identification Strategies
   - API Key
   - JWT
@@ -20,8 +22,26 @@ A production-oriented **Token Bucket Rate Limiter** built with **Java 21**, **Sp
 - Configurable bucket capacity
 - Configurable refill rate
 - Docker & Docker Compose support
+- Comprehensive Unit Testing
+- Service Layer Testing
+- Controller Testing
+- Repository Testing
+- Concurrency Testing
 - Clean layered architecture
 - Production-oriented design
+
+---
+
+# ⭐ Highlights
+
+- Production-oriented Token Bucket implementation
+- Redis-backed distributed bucket storage
+- Thread-safe concurrency control
+- Multiple client identification strategies
+- RESTful APIs built with Spring Boot
+- Metrics using Spring Boot Actuator & Micrometer
+- Dockerized deployment
+- Comprehensive testing using JUnit 5 & Mockito
 
 ---
 
@@ -33,6 +53,9 @@ A production-oriented **Token Bucket Rate Limiter** built with **Java 21**, **Sp
 - Docker
 - Docker Compose
 - Maven
+- JUnit 5
+- Mockito
+- Testcontainers
 - REST API
 - Spring Boot Actuator
 - Micrometer
@@ -42,7 +65,7 @@ A production-oriented **Token Bucket Rate Limiter** built with **Java 21**, **Sp
 
 # 📁 Project Structure
 
-```
+```text
 src/main/java/com/dinesh/ratelimiter
 
 ├── algorithm
@@ -63,6 +86,7 @@ src/main/java/com/dinesh/ratelimiter
 │   └── GlobalExceptionHandler.java
 │
 ├── metrics
+│   └── RateLimiterMetrics.java
 │
 ├── model
 │   ├── Bucket.java
@@ -75,10 +99,31 @@ src/main/java/com/dinesh/ratelimiter
 │   └── RedisBucketRepository.java
 │
 ├── service
-│   ├── BucketService.java
-│   └── AdminService.java
+│   ├── AdminService.java
+│   └── BucketService.java
 │
 └── TokenBucketRateLimiterApplication.java
+
+src/test/java/com/dinesh/ratelimiter
+
+├── algorithm
+│   └── TokenBucketRateLimiterTest.java
+│
+├── concurrency
+│   └── ConcurrentRateLimiterTest.java
+│
+├── controller
+│   ├── AdminControllerTest.java
+│   └── BucketControllerTest.java
+│
+├── repository
+│   ├── InMemoryBucketRepositoryTest.java
+│   └── RedisBucketRepositoryTest.java
+│
+├── service
+│   └── BucketServiceTest.java
+│
+└── TokenBucketRateLimiterApplicationTests.java
 ```
 
 ---
@@ -89,13 +134,13 @@ src/main/java/com/dinesh/ratelimiter
 
 ### Request
 
-```
+```http
 GET /api/check?type=API_KEY&id=dinesh
 ```
 
 ### Example
 
-```
+```http
 GET /api/check?type=USER&id=dinesh
 ```
 
@@ -103,8 +148,8 @@ GET /api/check?type=USER&id=dinesh
 
 ```json
 {
-    "allowed": true,
-    "tokensRemaining": 19
+  "allowed": true,
+  "tokensRemaining": 19
 }
 ```
 
@@ -125,31 +170,31 @@ GET /api/check?type=USER&id=dinesh
 
 ## Get All Clients
 
-```
+```http
 GET /admin/users
 ```
 
 ## Get All Buckets
 
-```
+```http
 GET /admin/buckets
 ```
 
 ## Get Bucket
 
-```
+```http
 GET /admin/bucket?type=USER&id=dinesh
 ```
 
 ## Delete Bucket
 
-```
+```http
 DELETE /admin/bucket?type=USER&id=dinesh
 ```
 
 ## Reset All Buckets
 
-```
+```http
 POST /admin/reset
 ```
 
@@ -159,11 +204,71 @@ POST /admin/reset
 
 Spring Boot Actuator endpoints:
 
-```
+```http
 GET /actuator/health
 GET /actuator/info
 GET /actuator/metrics
 GET /actuator/prometheus
+```
+
+---
+
+# 🧪 Testing
+
+The project includes a comprehensive testing suite covering the major layers of the application.
+
+## Test Categories
+
+- Application Context Test
+- Algorithm Unit Tests
+- Service Layer Tests
+- Controller Tests
+- Repository Tests
+- Concurrency Tests
+
+## Current Test Status
+
+```text
+Tests Run : 48
+Failures  : 0
+Errors    : 0
+```
+
+## Concurrency Test
+
+The rate limiter is validated under concurrent load.
+
+Example:
+
+```text
+1000 Concurrent Requests
+
+↓
+
+100 Allowed
+
+900 Blocked
+```
+
+This verifies:
+
+- Thread Safety
+- No Race Conditions
+- Correct Token Consumption
+- No Negative Token Counts
+
+### Run Tests
+
+#### Windows
+
+```powershell
+.\mvnw.cmd test
+```
+
+#### Linux / macOS
+
+```bash
+./mvnw test
 ```
 
 ---
@@ -194,7 +299,7 @@ Run in detached mode:
 docker compose up -d
 ```
 
-Stop the containers:
+Stop containers:
 
 ```bash
 docker compose down
@@ -210,13 +315,11 @@ docker compose logs -f
 
 ## Run Locally
 
-Start Redis locally:
+### Start Redis
 
 ```bash
 docker run -d --name redis-rate-limiter -p 6379:6379 redis:8-alpine
 ```
-
-Run the application:
 
 ### Windows
 
@@ -248,25 +351,25 @@ Run the application:
 
 ### API Key
 
-```
+```http
 GET /api/check?type=API_KEY&id=my-api-key
 ```
 
 ### JWT
 
-```
+```http
 GET /api/check?type=JWT&id=user123
 ```
 
 ### IP Address
 
-```
+```http
 GET /api/check?type=IP&id=192.168.1.15
 ```
 
 ### User
 
-```
+```http
 GET /api/check?type=USER&id=dinesh
 ```
 
@@ -280,8 +383,8 @@ GET /api/check?type=USER&id=dinesh
 - ✅ Phase 4 – Admin APIs
 - ✅ Phase 5 – Metrics & Monitoring
 - ✅ Phase 6 – Docker & Docker Compose
-- ⏳ Phase 7 – Testing
-- ⏳ Phase 8 – CI/CD
+- ✅ Phase 7 – Testing
+- ⏳ Phase 8 – GitHub Actions (CI/CD)
 - ⏳ Phase 9 – Deployment
 
 ---
@@ -292,6 +395,11 @@ GET /api/check?type=USER&id=dinesh
 
 - Thread Safety
 - Token Bucket Algorithm
+- ReentrantLock
+- ConcurrentHashMap
+- ExecutorService
+- CountDownLatch
+- AtomicInteger
 
 ## Backend
 
@@ -310,10 +418,19 @@ GET /api/check?type=USER&id=dinesh
 - Micrometer
 - Prometheus Metrics
 
+## Testing
+
+- JUnit 5
+- Mockito
+- MockMvc
+- Integration Testing
+- Concurrency Testing
+
 ## DevOps
 
 - Docker
 - Docker Compose
+- GitHub Actions (Coming Soon)
 
 ## System Design
 
@@ -321,6 +438,7 @@ GET /api/check?type=USER&id=dinesh
 - Distributed Caching
 - Client Identification
 - Layered Architecture
+- Scalability
 
 ---
 

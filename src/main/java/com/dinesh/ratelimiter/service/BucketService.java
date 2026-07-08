@@ -22,9 +22,11 @@ public class BucketService {
     @Value("${rate-limiter.refill-rate}")
     private long refillRate;
 
-    public BucketService(BucketRepository bucketRepository,
+    public BucketService(
+            BucketRepository bucketRepository,
             TokenBucketRateLimiter rateLimiter,
             RateLimiterMetrics metrics) {
+
         this.bucketRepository = bucketRepository;
         this.rateLimiter = rateLimiter;
         this.metrics = metrics;
@@ -41,19 +43,17 @@ public class BucketService {
                     capacity,
                     refillRate);
 
-            boolean allowed = rateLimiter.allowRequest(bucket).isAllowed();
+            RateLimitResult result = rateLimiter.allowRequest(bucket);
 
             bucketRepository.saveBucket(client, bucket);
 
-            if (allowed) {
+            if (result.isAllowed()) {
                 metrics.incrementAllowedRequests();
             } else {
                 metrics.incrementBlockedRequests();
             }
 
-            return new RateLimitResult(
-                    allowed,
-                    bucket.getAvailableTokens());
+            return result;
         });
     }
 }
