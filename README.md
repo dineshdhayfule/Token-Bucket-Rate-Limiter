@@ -275,11 +275,6 @@ POST /admin/reset
 
 ---
 
-<<<<<<< HEAD
-## 👨‍💻 Author
-**Dinesh Dhayfule**
-GitHub: https://github.com/dineshdhayfule
-=======
 # 🎯 Concepts Covered
 
 ## Concurrency
