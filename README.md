@@ -1,6 +1,6 @@
 # 🚀 Token Bucket Rate Limiter
 
-A production-oriented **Token Bucket Rate Limiter** built with **Java 21** and **Spring Boot 3**. This project demonstrates backend engineering concepts such as rate limiting, concurrency, Redis integration, REST APIs, and scalable backend architecture.
+A production-oriented **Token Bucket Rate Limiter** built with **Java 21**, **Spring Boot 3**, **Redis**, and **Docker**. This project demonstrates backend engineering concepts such as rate limiting, concurrency, Redis integration, REST APIs, monitoring, and scalable backend architecture.
 
 ---
 
@@ -12,20 +12,14 @@ A production-oriented **Token Bucket Rate Limiter** built with **Java 21** and *
   - API Key
   - JWT
   - IP Address
-  - Custom Client
+  - User
 - Redis-backed bucket storage
-<<<<<<< HEAD
-- Multiple Client Support
-  - API Key
-  - JWT User
-  - IP Address
-  - Custom Client
-=======
 - In-Memory bucket storage
 - Admin APIs
->>>>>>> feature/admin-api
+- Metrics & Monitoring
 - Configurable bucket capacity
 - Configurable refill rate
+- Docker & Docker Compose support
 - Clean layered architecture
 - Production-oriented design
 
@@ -36,9 +30,12 @@ A production-oriented **Token Bucket Rate Limiter** built with **Java 21** and *
 - Java 21
 - Spring Boot 3
 - Redis
+- Docker
+- Docker Compose
 - Maven
 - REST API
-- Docker
+- Spring Boot Actuator
+- Micrometer
 - Git & GitHub
 
 ---
@@ -51,6 +48,9 @@ src/main/java/com/dinesh/ratelimiter
 ├── algorithm
 │   └── TokenBucketRateLimiter.java
 │
+├── config
+│   └── RedisConfig.java
+│
 ├── controller
 │   ├── BucketController.java
 │   └── AdminController.java
@@ -61,6 +61,8 @@ src/main/java/com/dinesh/ratelimiter
 ├── exception
 │   ├── BucketNotFoundException.java
 │   └── GlobalExceptionHandler.java
+│
+├── metrics
 │
 ├── model
 │   ├── Bucket.java
@@ -76,7 +78,7 @@ src/main/java/com/dinesh/ratelimiter
 │   ├── BucketService.java
 │   └── AdminService.java
 │
-└── RateLimiterApplication.java
+└── TokenBucketRateLimiterApplication.java
 ```
 
 ---
@@ -94,7 +96,7 @@ GET /api/check?type=API_KEY&id=dinesh
 ### Example
 
 ```
-GET /api/check?type=JWT&id=user123
+GET /api/check?type=USER&id=dinesh
 ```
 
 ### Response
@@ -111,11 +113,11 @@ GET /api/check?type=JWT&id=user123
 # 👥 Supported Client Types
 
 | Client Type | Example |
-|------------|---------|
+|-------------|---------|
 | API_KEY | `API_KEY` |
 | JWT | `JWT` |
 | IP | `IP` |
-| CLIENT | `CLIENT` |
+| USER | `USER` |
 
 ---
 
@@ -127,36 +129,41 @@ GET /api/check?type=JWT&id=user123
 GET /admin/users
 ```
 
----
-
 ## Get All Buckets
 
 ```
 GET /admin/buckets
 ```
 
----
-
 ## Get Bucket
 
 ```
-GET /admin/bucket?type=API_KEY&id=dinesh
+GET /admin/bucket?type=USER&id=dinesh
 ```
-
----
 
 ## Delete Bucket
 
 ```
-DELETE /admin/bucket?type=API_KEY&id=dinesh
+DELETE /admin/bucket?type=USER&id=dinesh
 ```
-
----
 
 ## Reset All Buckets
 
 ```
 POST /admin/reset
+```
+
+---
+
+# 📊 Monitoring
+
+Spring Boot Actuator endpoints:
+
+```
+GET /actuator/health
+GET /actuator/info
+GET /actuator/metrics
+GET /actuator/prometheus
 ```
 
 ---
@@ -167,41 +174,73 @@ POST /admin/reset
 
 ```bash
 git clone https://github.com/dineshdhayfule/Token-Bucket-Rate-Limiter.git
-```
 
-```
 cd Token-Bucket-Rate-Limiter
 ```
 
 ---
 
-## Start Redis
+## Run with Docker (Recommended)
+
+Build and start the application:
 
 ```bash
-docker run -d --name redis-rate-limiter -p 6379:6379 redis:7-alpine
+docker compose up --build
 ```
 
-If Redis already exists:
+Run in detached mode:
 
 ```bash
-docker start redis-rate-limiter
+docker compose up -d
+```
+
+Stop the containers:
+
+```bash
+docker compose down
+```
+
+View logs:
+
+```bash
+docker compose logs -f
 ```
 
 ---
 
-## Run with Redis Profile
+## Run Locally
 
-Windows
-
-```powershell
-.\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=redis"
-```
-
-Linux / macOS
+Start Redis locally:
 
 ```bash
-./mvnw spring-boot:run -Dspring-boot.run.profiles=redis
+docker run -d --name redis-rate-limiter -p 6379:6379 redis:8-alpine
 ```
+
+Run the application:
+
+### Windows
+
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+### Linux / macOS
+
+```bash
+./mvnw spring-boot:run
+```
+
+---
+
+# 🌍 Environment Variables
+
+| Variable | Default |
+|----------|---------|
+| REDIS_HOST | localhost |
+| REDIS_PORT | 6379 |
+| RATE_LIMITER_CAPACITY | 20 |
+| RATE_LIMITER_REFILL_RATE | 5 |
+| SPRING_PROFILES_ACTIVE | redis |
 
 ---
 
@@ -219,59 +258,31 @@ GET /api/check?type=API_KEY&id=my-api-key
 GET /api/check?type=JWT&id=user123
 ```
 
-### IP
+### IP Address
 
 ```
 GET /api/check?type=IP&id=192.168.1.15
 ```
 
-### Custom Client
+### User
 
 ```
-GET /api/check?type=CLIENT&id=mobile-app
-```
-
----
-
-# 🧪 Admin API Examples
-
-List Clients
-
-```
-GET /admin/users
-```
-
-Get Bucket
-
-```
-GET /admin/bucket?type=JWT&id=user123
-```
-
-Delete Bucket
-
-```
-DELETE /admin/bucket?type=JWT&id=user123
-```
-
-Reset All Buckets
-
-```
-POST /admin/reset
+GET /api/check?type=USER&id=dinesh
 ```
 
 ---
 
 # 🚧 Roadmap
 
-- ✅ Phase 1 - In-Memory Token Bucket
-- ✅ Phase 2 - Redis Integration
-- ✅ Phase 3 - Multiple Client Strategies
-- ✅ Phase 4 - Admin APIs
-- ✅ Phase 5 - Metrics & Monitoring
-- ⏳ Phase 6 - Docker & Docker Compose
-- ⏳ Phase 7 - Testing
-- ⏳ Phase 8 - CI/CD
-- ⏳ Phase 9 - Deployment
+- ✅ Phase 1 – In-Memory Token Bucket
+- ✅ Phase 2 – Redis Integration
+- ✅ Phase 3 – Multiple Client Strategies
+- ✅ Phase 4 – Admin APIs
+- ✅ Phase 5 – Metrics & Monitoring
+- ✅ Phase 6 – Docker & Docker Compose
+- ⏳ Phase 7 – Testing
+- ⏳ Phase 8 – CI/CD
+- ⏳ Phase 9 – Deployment
 
 ---
 
@@ -291,13 +302,24 @@ POST /admin/reset
 ## Storage
 
 - Redis
-- In-Memory Repository Pattern
+- Repository Pattern
+
+## Monitoring
+
+- Spring Boot Actuator
+- Micrometer
+- Prometheus Metrics
+
+## DevOps
+
+- Docker
+- Docker Compose
 
 ## System Design
 
 - Rate Limiting
+- Distributed Caching
 - Client Identification
-- Repository Pattern
 - Layered Architecture
 
 ---
