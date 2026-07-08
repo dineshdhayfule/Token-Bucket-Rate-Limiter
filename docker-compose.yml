@@ -1,0 +1,44 @@
+services:
+  redis:
+    image: redis:8-alpine
+    container_name: rate-limiter-redis
+
+    ports:
+      - "6379:6379"
+
+    volumes:
+      - redis-data:/data
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: token-bucket-rate-limiter
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RATE_LIMITER_CAPACITY: 20
+      RATE_LIMITER_REFILL_RATE: 5
+      SPRING_PROFILES_ACTIVE: redis
+
+    depends_on:
+      redis:
+        condition: service_healthy
+
+    restart: unless-stopped
+
+volumes:
+  redis-data:

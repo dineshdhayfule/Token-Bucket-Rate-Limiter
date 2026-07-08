@@ -1,0 +1,24 @@
+# Maven
+target/
+
+# Git
+.git
+.github
+
+# IDE
+.idea
+.settings
+.vscode
+.classpath
+.project
+.factorypath
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+HELP.md
