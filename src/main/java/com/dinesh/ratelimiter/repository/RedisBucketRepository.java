@@ -111,4 +111,12 @@ public class RedisBucketRepository implements BucketRepository {
             redisTemplate.delete(keys);
         }
     }
+
+    @Override
+    public long getBucketCount() {
+
+        Set<String> keys = redisTemplate.keys(PREFIX + "*");
+
+        return keys == null ? 0 : keys.size();
+    }
 }

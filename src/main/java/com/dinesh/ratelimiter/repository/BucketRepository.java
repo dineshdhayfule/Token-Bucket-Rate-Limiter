@@ -19,12 +19,13 @@ public interface BucketRepository {
     Bucket getOrCreateBucket(
             ClientIdentifier client,
             long capacity,
-            long refillRate
-    );
+            long refillRate);
 
     List<ClientIdentifier> getAllClients();
 
     Map<ClientIdentifier, Bucket> getAllBuckets();
 
     void removeAllBuckets();
+
+    long getBucketCount();
 }

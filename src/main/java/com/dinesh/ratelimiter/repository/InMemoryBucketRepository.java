@@ -62,4 +62,9 @@ public class InMemoryBucketRepository implements BucketRepository {
     public void removeAllBuckets() {
         buckets.clear();
     }
+
+    @Override
+    public long getBucketCount() {
+        return buckets.size();
+    }
 }

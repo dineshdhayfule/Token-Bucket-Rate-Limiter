@@ -2,6 +2,7 @@ package com.dinesh.ratelimiter.service;
 
 import com.dinesh.ratelimiter.algorithm.TokenBucketRateLimiter;
 import com.dinesh.ratelimiter.dto.RateLimitResult;
+import com.dinesh.ratelimiter.metrics.RateLimiterMetrics;
 import com.dinesh.ratelimiter.model.Bucket;
 import com.dinesh.ratelimiter.model.ClientIdentifier;
 import com.dinesh.ratelimiter.repository.BucketRepository;
@@ -13,6 +14,7 @@ public class BucketService {
 
     private final BucketRepository bucketRepository;
     private final TokenBucketRateLimiter rateLimiter;
+    private final RateLimiterMetrics metrics;
 
     @Value("${rate-limiter.capacity}")
     private long capacity;
@@ -21,26 +23,37 @@ public class BucketService {
     private long refillRate;
 
     public BucketService(BucketRepository bucketRepository,
-                         TokenBucketRateLimiter rateLimiter) {
+            TokenBucketRateLimiter rateLimiter,
+            RateLimiterMetrics metrics) {
         this.bucketRepository = bucketRepository;
         this.rateLimiter = rateLimiter;
+        this.metrics = metrics;
     }
 
     public RateLimitResult allowRequest(ClientIdentifier client) {
 
-        Bucket bucket = bucketRepository.getOrCreateBucket(
-                client,
-                capacity,
-                refillRate
-        );
+        return metrics.getRequestLatency().record(() -> {
 
-        boolean allowed = rateLimiter.allowRequest(bucket).isAllowed();
+            metrics.incrementRedisHits();
 
-        bucketRepository.saveBucket(client, bucket);
+            Bucket bucket = bucketRepository.getOrCreateBucket(
+                    client,
+                    capacity,
+                    refillRate);
 
-        return new RateLimitResult(
-                allowed,
-                bucket.getAvailableTokens()
-        );
+            boolean allowed = rateLimiter.allowRequest(bucket).isAllowed();
+
+            bucketRepository.saveBucket(client, bucket);
+
+            if (allowed) {
+                metrics.incrementAllowedRequests();
+            } else {
+                metrics.incrementBlockedRequests();
+            }
+
+            return new RateLimitResult(
+                    allowed,
+                    bucket.getAvailableTokens());
+        });
     }
 }
