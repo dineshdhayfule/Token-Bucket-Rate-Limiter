@@ -310,6 +310,3 @@ GitHub: https://github.com/dineshdhayfule
 # 👨‍💻 Author
 
 **Dinesh Dhayfule**
-
-GitHub: <https://github.com/dineshdhayfule>
->>>>>>> feature/admin-api
