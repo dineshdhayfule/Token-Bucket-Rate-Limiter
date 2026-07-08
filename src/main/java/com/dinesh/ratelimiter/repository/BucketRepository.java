@@ -1,5 +1,8 @@
 package com.dinesh.ratelimiter.repository;
 
+import java.util.List;
+import java.util.Map;
+
 import com.dinesh.ratelimiter.model.Bucket;
 import com.dinesh.ratelimiter.model.ClientIdentifier;
 
@@ -18,4 +21,10 @@ public interface BucketRepository {
             long capacity,
             long refillRate
     );
+
+    List<ClientIdentifier> getAllClients();
+
+    Map<ClientIdentifier, Bucket> getAllBuckets();
+
+    void removeAllBuckets();
 }

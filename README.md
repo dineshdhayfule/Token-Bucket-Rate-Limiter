@@ -1,40 +1,49 @@
 # 🚀 Token Bucket Rate Limiter
 
-A production-oriented **Token Bucket Rate Limiter** built with **Java 21**, **Spring Boot 3**, and **Redis**. This project demonstrates backend engineering concepts such as rate limiting, thread safety, REST APIs, distributed caching, and scalable architecture.
+A production-oriented **Token Bucket Rate Limiter** built with **Java 21** and **Spring Boot 3**. This project demonstrates backend engineering concepts such as rate limiting, concurrency, Redis integration, REST APIs, and scalable backend architecture.
 
 ---
 
-## 📌 Features
+# 📌 Features
 
 - Token Bucket Rate Limiting Algorithm
 - Thread-safe implementation
+- Multiple Client Identification Strategies
+  - API Key
+  - JWT
+  - IP Address
+  - Custom Client
 - Redis-backed bucket storage
+<<<<<<< HEAD
 - Multiple Client Support
   - API Key
   - JWT User
   - IP Address
   - Custom Client
+=======
+- In-Memory bucket storage
+- Admin APIs
+>>>>>>> feature/admin-api
 - Configurable bucket capacity
 - Configurable refill rate
-- REST API
-- JSON responses
 - Clean layered architecture
+- Production-oriented design
 
 ---
 
-## 🛠️ Tech Stack
+# 🛠️ Tech Stack
 
 - Java 21
 - Spring Boot 3
 - Redis
 - Maven
-- Spring Data Redis
 - REST API
+- Docker
 - Git & GitHub
 
 ---
 
-## 📁 Project Structure
+# 📁 Project Structure
 
 ```
 src/main/java/com/dinesh/ratelimiter
@@ -43,10 +52,15 @@ src/main/java/com/dinesh/ratelimiter
 │   └── TokenBucketRateLimiter.java
 │
 ├── controller
-│   └── BucketController.java
+│   ├── BucketController.java
+│   └── AdminController.java
 │
 ├── dto
 │   └── RateLimitResult.java
+│
+├── exception
+│   ├── BucketNotFoundException.java
+│   └── GlobalExceptionHandler.java
 │
 ├── model
 │   ├── Bucket.java
@@ -59,115 +73,243 @@ src/main/java/com/dinesh/ratelimiter
 │   └── RedisBucketRepository.java
 │
 ├── service
-│   └── BucketService.java
+│   ├── BucketService.java
+│   └── AdminService.java
 │
 └── RateLimiterApplication.java
 ```
 
 ---
 
-## ⚙️ API
+# ⚙️ Rate Limiting API
 
-### Check Rate Limit
+## Check Rate Limit
 
 ### Request
 
 ```
-GET /api/check?type=CLIENT&id=dinesh
+GET /api/check?type=API_KEY&id=dinesh
 ```
 
-### Supported Client Types
+### Example
 
-| Client Type | Example |
-|-------------|---------|
-| CLIENT | `/api/check?type=CLIENT&id=dinesh` |
-| API_KEY | `/api/check?type=API_KEY&id=abc123` |
-| JWT | `/api/check?type=JWT&id=user42` |
-| IP | `/api/check?type=IP&id=192.168.1.10` |
+```
+GET /api/check?type=JWT&id=user123
+```
 
----
-
-### Sample Response
+### Response
 
 ```json
 {
-  "allowed": true,
-  "tokensRemaining": 19
+    "allowed": true,
+    "tokensRemaining": 19
 }
 ```
 
 ---
 
-## ▶️ Running the Project
+# 👥 Supported Client Types
 
-### Clone the repository
+| Client Type | Example |
+|------------|---------|
+| API_KEY | `API_KEY` |
+| JWT | `JWT` |
+| IP | `IP` |
+| CLIENT | `CLIENT` |
+
+---
+
+# 🔧 Admin APIs
+
+## Get All Clients
+
+```
+GET /admin/users
+```
+
+---
+
+## Get All Buckets
+
+```
+GET /admin/buckets
+```
+
+---
+
+## Get Bucket
+
+```
+GET /admin/bucket?type=API_KEY&id=dinesh
+```
+
+---
+
+## Delete Bucket
+
+```
+DELETE /admin/bucket?type=API_KEY&id=dinesh
+```
+
+---
+
+## Reset All Buckets
+
+```
+POST /admin/reset
+```
+
+---
+
+# ▶️ Running the Project
+
+## Clone Repository
 
 ```bash
 git clone https://github.com/dineshdhayfule/Token-Bucket-Rate-Limiter.git
 ```
 
-### Navigate into the project
-
-```bash
+```
 cd Token-Bucket-Rate-Limiter
 ```
 
-### Start Redis
+---
+
+## Start Redis
 
 ```bash
-docker run -d --name redis -p 6379:6379 redis:7-alpine
+docker run -d --name redis-rate-limiter -p 6379:6379 redis:7-alpine
 ```
 
-### Run the application
+If Redis already exists:
 
 ```bash
-./mvnw spring-boot:run
-```
-
-The application starts on
-
-```
-http://localhost:8080
+docker start redis-rate-limiter
 ```
 
 ---
 
-## 🧪 Test the API
+## Run with Redis Profile
 
-### Browser
-
-```
-http://localhost:8080/api/check?type=CLIENT&id=dinesh
-```
-
-### Curl
-
-```bash
-curl "http://localhost:8080/api/check?type=CLIENT&id=dinesh"
-```
-
-### PowerShell
+Windows
 
 ```powershell
-Invoke-RestMethod "http://localhost:8080/api/check?type=CLIENT&id=dinesh"
+.\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=redis"
+```
+
+Linux / macOS
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=redis
 ```
 
 ---
 
-## 🚧 Roadmap
+# 🧪 Sample Requests
+
+### API Key
+
+```
+GET /api/check?type=API_KEY&id=my-api-key
+```
+
+### JWT
+
+```
+GET /api/check?type=JWT&id=user123
+```
+
+### IP
+
+```
+GET /api/check?type=IP&id=192.168.1.15
+```
+
+### Custom Client
+
+```
+GET /api/check?type=CLIENT&id=mobile-app
+```
+
+---
+
+# 🧪 Admin API Examples
+
+List Clients
+
+```
+GET /admin/users
+```
+
+Get Bucket
+
+```
+GET /admin/bucket?type=JWT&id=user123
+```
+
+Delete Bucket
+
+```
+DELETE /admin/bucket?type=JWT&id=user123
+```
+
+Reset All Buckets
+
+```
+POST /admin/reset
+```
+
+---
+
+# 🚧 Roadmap
 
 - ✅ Phase 1 - In-Memory Token Bucket
 - ✅ Phase 2 - Redis Integration
-- ✅ Phase 3 - Multiple Client Support
-- ⏳ Phase 4 - Admin APIs
+- ✅ Phase 3 - Multiple Client Strategies
+- ✅ Phase 4 - Admin APIs
 - ⏳ Phase 5 - Metrics & Monitoring
-- ⏳ Phase 6 - Docker
+- ⏳ Phase 6 - Docker & Docker Compose
 - ⏳ Phase 7 - Testing
 - ⏳ Phase 8 - CI/CD
 - ⏳ Phase 9 - Deployment
 
 ---
 
+<<<<<<< HEAD
 ## 👨‍💻 Author
 **Dinesh Dhayfule**
 GitHub: https://github.com/dineshdhayfule
+=======
+# 🎯 Concepts Covered
+
+## Concurrency
+
+- Thread Safety
+- Token Bucket Algorithm
+
+## Backend
+
+- Spring Boot
+- REST APIs
+- Dependency Injection
+
+## Storage
+
+- Redis
+- In-Memory Repository Pattern
+
+## System Design
+
+- Rate Limiting
+- Client Identification
+- Repository Pattern
+- Layered Architecture
+
+---
+
+# 👨‍💻 Author
+
+**Dinesh Dhayfule**
+
+GitHub: <https://github.com/dineshdhayfule>
+>>>>>>> feature/admin-api

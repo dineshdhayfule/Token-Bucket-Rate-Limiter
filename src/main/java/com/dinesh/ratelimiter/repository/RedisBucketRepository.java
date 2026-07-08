@@ -1,10 +1,13 @@
 package com.dinesh.ratelimiter.repository;
 
+import com.dinesh.ratelimiter.model.ClientType;
 import com.dinesh.ratelimiter.model.Bucket;
 import com.dinesh.ratelimiter.model.ClientIdentifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 @Profile("redis")
@@ -61,5 +64,51 @@ public class RedisBucketRepository implements BucketRepository {
         }
 
         return bucket;
+    }
+    
+    @Override
+    public List<ClientIdentifier> getAllClients() {
+
+        Set<String> keys = redisTemplate.keys(PREFIX + "*");
+
+        if (keys == null || keys.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return keys.stream()
+                .map(key -> key.substring(PREFIX.length()))
+                .map(value -> {
+                    String[] parts = value.split(":", 2);
+                    return new ClientIdentifier(
+                            Enum.valueOf(ClientType.class, parts[0]),
+                            parts[1]);
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<ClientIdentifier, Bucket> getAllBuckets() {
+
+        Map<ClientIdentifier, Bucket> buckets = new HashMap<>();
+
+        for (ClientIdentifier client : getAllClients()) {
+            Bucket bucket = getBucket(client);
+
+            if (bucket != null) {
+                buckets.put(client, bucket);
+            }
+        }
+
+        return buckets;
+    }
+
+    @Override
+    public void removeAllBuckets() {
+
+        Set<String> keys = redisTemplate.keys(PREFIX + "*");
+
+        if (keys != null && !keys.isEmpty()) {
+            redisTemplate.delete(keys);
+        }
     }
 }

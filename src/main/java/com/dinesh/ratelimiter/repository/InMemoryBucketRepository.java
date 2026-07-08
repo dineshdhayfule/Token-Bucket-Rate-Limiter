@@ -5,48 +5,61 @@ import com.dinesh.ratelimiter.model.ClientIdentifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
 @Profile("!redis")
 public class InMemoryBucketRepository implements BucketRepository {
 
-    private final ConcurrentHashMap<String, Bucket> buckets = new ConcurrentHashMap<>();
-
-    private String getKey(ClientIdentifier client) {
-        return client.getKey();
-    }
+    private final ConcurrentHashMap<ClientIdentifier, Bucket> buckets = new ConcurrentHashMap<>();
 
     @Override
     public Bucket getBucket(ClientIdentifier client) {
-        return buckets.get(getKey(client));
+        return buckets.get(client);
     }
 
     @Override
     public void saveBucket(ClientIdentifier client, Bucket bucket) {
-        buckets.put(getKey(client), bucket);
+        buckets.put(client, bucket);
     }
 
     @Override
     public boolean containsBucket(ClientIdentifier client) {
-        return buckets.containsKey(getKey(client));
+        return buckets.containsKey(client);
     }
 
     @Override
     public void removeBucket(ClientIdentifier client) {
-        buckets.remove(getKey(client));
+        buckets.remove(client);
     }
 
     @Override
     public Bucket getOrCreateBucket(
             ClientIdentifier client,
             long capacity,
-            long refillRate
-    ) {
+            long refillRate) {
 
         return buckets.computeIfAbsent(
-                getKey(client),
-                key -> new Bucket(capacity, refillRate)
-        );
+                client,
+                key -> new Bucket(capacity, refillRate));
+    }
+
+    @Override
+    public List<ClientIdentifier> getAllClients() {
+        return new ArrayList<>(buckets.keySet());
+    }
+
+    @Override
+    public Map<ClientIdentifier, Bucket> getAllBuckets() {
+        return new HashMap<>(buckets);
+    }
+
+    @Override
+    public void removeAllBuckets() {
+        buckets.clear();
     }
 }
