@@ -384,7 +384,7 @@ GET /api/check?type=USER&id=dinesh
 - ✅ Phase 5 – Metrics & Monitoring
 - ✅ Phase 6 – Docker & Docker Compose
 - ✅ Phase 7 – Testing
-- ⏳ Phase 8 – GitHub Actions (CI/CD)
+- ✅ Phase 8 – GitHub Actions (CI/CD)
 - ⏳ Phase 9 – Deployment
 
 ---
