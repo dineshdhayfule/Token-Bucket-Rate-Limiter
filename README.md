@@ -1,13 +1,14 @@
 # 🚀 Token Bucket Rate Limiter
 
-> A production-oriented **Token Bucket Rate Limiter** built with **Java 21**, **Spring Boot 3**, **Redis**, and **Docker**. This project demonstrates backend engineering concepts such as rate limiting, concurrency, Redis integration, REST APIs, monitoring, testing, and scalable backend architecture.
+[![CI](https://github.com/dineshdhayfule/Token-Bucket-Rate-Limiter/actions/workflows/ci.yml/badge.svg)](https://github.com/dineshdhayfule/Token-Bucket-Rate-Limiter/actions/workflows/ci.yml)
 
-> **GitHub Actions CI badge will be added in Phase 8.**
+> A production-oriented **Token Bucket Rate Limiter** built with **Java 21**, **Spring Boot 3**, **Redis**, and **Docker**, featuring a **React + Vite Admin Dashboard**. This project demonstrates backend engineering concepts such as rate limiting, concurrency, Redis integration, REST APIs, monitoring, testing, and scalable backend architecture.
 
 ---
 
 # 📌 Features
 
+- **Interactive Admin Dashboard (React + Vite)**
 - Token Bucket Rate Limiting Algorithm
 - Thread-safe implementation using `ReentrantLock`
 - Multiple Client Identification Strategies
@@ -47,25 +48,42 @@
 
 # 🛠️ Tech Stack
 
+**Backend & Infrastructure**
 - Java 21
 - Spring Boot 3
 - Redis
-- Docker
-- Docker Compose
+- Docker & Docker Compose
 - Maven
-- JUnit 5
-- Mockito
+- JUnit 5 & Mockito
 - Testcontainers
 - REST API
-- Spring Boot Actuator
-- Micrometer
-- Git & GitHub
+- Spring Boot Actuator & Micrometer
+- GitHub Actions (CI/CD)
+
+**Frontend**
+- React 19
+- TypeScript
+- Vite
+- Tailwind CSS
+- React Query
+- React Router
 
 ---
 
 # 📁 Project Structure
 
 ```text
+frontend/                 # React Admin Dashboard
+├── src/
+│   ├── components/       # Reusable UI components
+│   ├── hooks/            # Custom React hooks
+│   ├── pages/            # Dashboard views
+│   ├── services/         # API integration
+│   └── App.tsx
+├── package.json
+└── vite.config.ts
+
+backend (Spring Boot)/
 src/main/java/com/dinesh/ratelimiter
 
 ├── algorithm
@@ -287,11 +305,13 @@ cd Token-Bucket-Rate-Limiter
 
 ## Run with Docker (Recommended)
 
-Build and start the application:
+Build and start the application (Backend on port `8080`, Frontend Dashboard on port `5173`):
 
 ```bash
 docker compose up --build
 ```
+
+Access the Admin Dashboard at: [http://localhost:5173](http://localhost:5173)
 
 Run in detached mode:
 
@@ -385,7 +405,8 @@ GET /api/check?type=USER&id=dinesh
 - ✅ Phase 6 – Docker & Docker Compose
 - ✅ Phase 7 – Testing
 - ✅ Phase 8 – GitHub Actions (CI/CD)
-- ⏳ Phase 9 – Deployment
+- ✅ Phase 9 – Interactive Admin Dashboard (Frontend)
+- ⏳ Phase 10 – Deployment
 
 ---
 
