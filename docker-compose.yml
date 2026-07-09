@@ -40,5 +40,16 @@ services:
 
     restart: unless-stopped
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: token-bucket-rate-limiter-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - app
+    restart: unless-stopped
+
 volumes:
   redis-data:
